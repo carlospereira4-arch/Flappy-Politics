@@ -1,0 +1,2 @@
+com.flappylula.mobile
+style AppTheme
