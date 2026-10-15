@@ -1,6 +1,6 @@
 # Flappy Lula para Android
 
-Esta pasta contém a versão Android nativa do jogo, escrita em Java. A versão Swing continua na pasta principal.
+Esta pasta contém a versão Android nativa do jogo, escrita em Java. A versão Swing fica em `../src/desktop`.
 
 ## Como abrir e gerar o APK
 
@@ -9,7 +9,7 @@ Esta pasta contém a versão Android nativa do jogo, escrita em Java. A versão 
 3. Para gerar o APK pelo terminal, execute `powershell -ExecutionPolicy Bypass -File .\build-apk.ps1` nesta pasta.
    A primeira execução baixa o Gradle 9.6.0 e as dependências do projeto.
 
-O APK de depuração fica em `app/build/outputs/apk/debug/app-debug.apk`. Copie-o para o celular e abra o arquivo para instalar. O Android pode pedir que você permita a instalação de apps dessa origem.
+O APK de depuração fica em `app/build/outputs/apk/debug/app-debug.apk`. Copie-o para o celular e abra o arquivo para instalar. O Android pode pedir que você permita a instalação de apps dessa origem. Saídas de build e caches do Gradle são gerados automaticamente e ignorados pelo Git.
 
 ## Controles
 
