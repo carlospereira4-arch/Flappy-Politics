@@ -49,6 +49,14 @@ public final class ObstaculoAndroid {
         return distanciaProximo;
     }
 
+    public float getLargura() {
+        return largura;
+    }
+
+    public float getCentroPassagem() {
+        return inicioPassagem + alturaPassagem / 2f;
+    }
+
     public void desenhar(Canvas canvas, Paint tintaImagem) {
         if (parteSuperior != null) {
             canvas.drawBitmap(parteSuperior, x, 0, tintaImagem);

@@ -5,11 +5,13 @@ $toolCache = Join-Path $env:LOCALAPPDATA 'FlappyLulaBuildTools'
 $gradleHome = Join-Path $toolCache "gradle-$gradleVersion"
 $gradleExecutable = Join-Path $gradleHome 'bin\gradle.bat'
 $archive = Join-Path $toolCache "gradle-$gradleVersion-bin.zip"
+$projectGradleHome = Join-Path $PSScriptRoot '.gradle-user-home'
+$projectAndroidHome = Join-Path $projectGradleHome '.android'
 
 $jdkCandidates = @(
+    (Join-Path $env:ProgramFiles 'Android\Android Studio\jbr'),
     $env:JAVA_HOME,
-    (Join-Path $env:ProgramFiles 'Java\jdk-17'),
-    (Join-Path $env:ProgramFiles 'Android\Android Studio\jbr')
+    (Join-Path $env:ProgramFiles 'Java\jdk-17')
 ) | Where-Object { $_ }
 $javaHome = $null
 foreach ($candidate in $jdkCandidates) {
@@ -49,9 +51,13 @@ if (-not (Test-Path -LiteralPath (Join-Path $sdkRoot 'platforms\android-37.0')))
 
 $env:ANDROID_SDK_ROOT = $sdkRoot
 $env:ANDROID_HOME = $sdkRoot
+$env:ANDROID_USER_HOME = $projectAndroidHome
+$env:ANDROID_SDK_HOME = $projectGradleHome
+New-Item -ItemType Directory -Force -Path $projectGradleHome, $projectAndroidHome | Out-Null
 Push-Location $PSScriptRoot
 try {
-    & $gradleExecutable --no-daemon "-Dorg.gradle.java.home=$javaHome" assembleDebug
+    & $gradleExecutable --gradle-user-home $projectGradleHome --no-daemon `
+        "-Dorg.gradle.java.home=$javaHome" "-Duser.home=$projectGradleHome" assembleDebug
     if ($LASTEXITCODE -ne 0) {
         throw "A compilação do APK falhou (código $LASTEXITCODE)."
     }
