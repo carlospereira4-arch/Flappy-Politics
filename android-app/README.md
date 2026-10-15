@@ -1,6 +1,10 @@
 # Flappy Lula para Android
 
+![Logo do Flappy Lula](../assets/images/branding/app_logo.png)
+
 Esta pasta contém a versão Android nativa do jogo, escrita em Java. A versão Swing fica em `../src/desktop`.
+
+**Para instalar no celular:** baixe `app-debug.apk` em [Releases no GitHub](https://github.com/carlospereira4-arch/Flappy-Politics/releases/latest). A cada nova publicação do projeto, o GitHub Actions compila e anexa um APK à versão.
 
 ## Como abrir e gerar o APK
 
@@ -10,6 +14,8 @@ Esta pasta contém a versão Android nativa do jogo, escrita em Java. A versão 
    A primeira execução baixa o Gradle 9.6.0 e as dependências do projeto.
 
 O APK de depuração fica em `app/build/outputs/apk/debug/app-debug.apk`. Copie-o para o celular e abra o arquivo para instalar. O Android pode pedir que você permita a instalação de apps dessa origem. Saídas de build e caches do Gradle são gerados automaticamente e ignorados pelo Git.
+
+Para publicar uma versão para download, crie e envie uma tag começando com `v` (por exemplo, `v1.1`). O workflow `.github/workflows/android-apk.yml` compila o app e anexa o APK automaticamente à Release correspondente. Também é possível iniciar a compilação manualmente pela aba **Actions** do GitHub; nesse caso, o resultado aparece como uma pré-lançamento chamada **Latest Android build**.
 
 ## Controles
 

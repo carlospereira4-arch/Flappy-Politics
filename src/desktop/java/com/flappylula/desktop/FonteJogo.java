@@ -2,27 +2,42 @@ package com.flappylula.desktop;
 
 import java.awt.Font;
 import java.awt.FontFormatException;
+import java.awt.font.FontRenderContext;
+import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.io.InputStream;
 
 public final class FonteJogo {
-    private static final Font HONK = carregar("fonts/Honk.ttf");
-    private static final Font OI = carregar("fonts/Oi-Regular.ttf");
-    private static final Font SHORT_STACK = carregar("fonts/ShortStack-Regular.ttf");
+    private static final Font BITCOUNT_INK = carregar("fonts/BitcountInk.ttf");
+    private static final Font PRESS_START_2P = carregar("fonts/PressStart2P-Regular.ttf");
+    private static final Font PIXELIFY_SANS = carregar("fonts/PixelifySans.ttf");
 
     private FonteJogo() {
     }
 
     public static Font titulo(float tamanho) {
-        return HONK.deriveFont(Font.PLAIN, tamanho);
+        return BITCOUNT_INK.deriveFont(Font.PLAIN, tamanho);
     }
 
     public static Font destaque(float tamanho) {
-        return OI.deriveFont(Font.PLAIN, tamanho);
+        return PRESS_START_2P.deriveFont(Font.PLAIN, tamanho);
     }
 
     public static Font texto(float tamanho) {
-        return SHORT_STACK.deriveFont(Font.PLAIN, tamanho);
+        return PIXELIFY_SANS.deriveFont(Font.PLAIN, tamanho);
+    }
+
+    public static Font ajustar(Font fonte, String texto, float larguraMaxima, float alturaMaxima) {
+        FontRenderContext contexto = new FontRenderContext(null, true, true);
+        Rectangle2D limites = fonte.getStringBounds(texto, contexto);
+        double escala = 1.0;
+        if (limites.getWidth() > larguraMaxima && limites.getWidth() > 0) {
+            escala = Math.min(escala, larguraMaxima / limites.getWidth());
+        }
+        if (limites.getHeight() > alturaMaxima && limites.getHeight() > 0) {
+            escala = Math.min(escala, alturaMaxima / limites.getHeight());
+        }
+        return escala < 1.0 ? fonte.deriveFont((float) (fonte.getSize2D() * escala)) : fonte;
     }
 
     private static Font carregar(String caminho) {

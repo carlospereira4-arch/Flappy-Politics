@@ -18,15 +18,30 @@ public class Personagem {
     private static final double HITBOX_Y = 217.0 / 1024.0;
     private static final double HITBOX_ALTURA = (891.0 - 217.0) / 1024.0;
 
-    private final BufferedImage imagem;
+    private BufferedImage imagem;
     private double x;
     private double y;
     private double velocidadeVertical;
 
     public Personagem() {
-        imagem = ImagemUtil.redimensionar(
-                ImagemUtil.carregar("personagem_transparente.png"), LARGURA, ALTURA);
+        this(0);
+    }
+
+    public Personagem(int personagemSelecionado) {
+        selecionar(personagemSelecionado);
         reiniciar();
+    }
+
+    public void selecionar(int indice) {
+        if (indice < 0 || indice >= ProgressoJogo.TOTAL_PERSONAGENS) {
+            indice = 0;
+        }
+        String nome = indice == 0 ? "personagem_transparente.png"
+                : "personagem" + (indice + 1) + "_transparente.png";
+        BufferedImage carregada = ImagemUtil.redimensionar(ImagemUtil.carregar(nome), LARGURA, ALTURA);
+        if (carregada != null) {
+            imagem = carregada;
+        }
     }
 
     public boolean atualizar(double deltaSegundos, int alturaJogo) {

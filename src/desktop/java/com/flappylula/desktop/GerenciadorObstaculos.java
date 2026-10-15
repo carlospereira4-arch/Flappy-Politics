@@ -6,12 +6,19 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
+import java.util.function.Consumer;
 
 public class GerenciadorObstaculos {
     private final List<Obstaculo> obstaculos = new ArrayList<>();
     private final Random aleatorio = new Random();
+    private final Consumer<Obstaculo> aoCriarObstaculo;
 
     public GerenciadorObstaculos() {
+        this(null);
+    }
+
+    public GerenciadorObstaculos(Consumer<Obstaculo> aoCriarObstaculo) {
+        this.aoCriarObstaculo = aoCriarObstaculo;
         reiniciar();
     }
 
@@ -30,8 +37,7 @@ public class GerenciadorObstaculos {
         while (!obstaculos.isEmpty()
                 && obstaculos.get(obstaculos.size() - 1).getX() < ConfiguracaoJogo.LARGURA * 2) {
             Obstaculo ultimo = obstaculos.get(obstaculos.size() - 1);
-            obstaculos.add(new Obstaculo(
-                    ultimo.getX() + ultimo.getDistanciaAteProximo(), aleatorio));
+            adicionar(new Obstaculo(ultimo.getX() + ultimo.getDistanciaAteProximo(), aleatorio));
         }
     }
 
@@ -55,8 +61,15 @@ public class GerenciadorObstaculos {
         double x = ConfiguracaoJogo.LARGURA + 35;
         while (x < ConfiguracaoJogo.LARGURA * 3) {
             Obstaculo obstaculo = new Obstaculo(x, aleatorio);
-            obstaculos.add(obstaculo);
+            adicionar(obstaculo);
             x += obstaculo.getDistanciaAteProximo();
+        }
+    }
+
+    private void adicionar(Obstaculo obstaculo) {
+        obstaculos.add(obstaculo);
+        if (aoCriarObstaculo != null) {
+            aoCriarObstaculo.accept(obstaculo);
         }
     }
 }

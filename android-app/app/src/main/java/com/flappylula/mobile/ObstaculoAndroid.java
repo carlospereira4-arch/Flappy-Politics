@@ -9,11 +9,11 @@ import java.util.Random;
 
 /** Par de sprites que forma a passagem e a caixa de colisão de um obstáculo. */
 public final class ObstaculoAndroid {
-    private static final float PROP_Y_INICIAL = 76f / 1264f;
-    private static final float PROP_Y_FINAL = 1110f / 1264f;
+    private static final float PROP_Y_INICIAL = 0f;
+    private static final float PROP_Y_FINAL = 0.93f;
     private static final float PROP_ALTURA_ARTE = PROP_Y_FINAL - PROP_Y_INICIAL;
-    private static final float PROP_X_ARTE = 199f / 843f;
-    private static final float PROP_LARGURA_ARTE = (642f - 199f) / 843f;
+    private static final float PROP_X_ARTE = 0.04f;
+    private static final float PROP_LARGURA_ARTE = 0.92f;
 
     private final int largura;
     private final float inicioPassagem;

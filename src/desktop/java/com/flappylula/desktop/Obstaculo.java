@@ -7,12 +7,12 @@ import java.awt.image.BufferedImage;
 import java.util.Random;
 
 public class Obstaculo {
-    private static final BufferedImage IMAGEM = ImagemUtil.carregar("obstaculos_transparente.png");
-    private static final double PROPORCAO_Y_INICIAL = 76.0 / 1264.0;
-    private static final double PROPORCAO_Y_FINAL = 1110.0 / 1264.0;
+    private static final BufferedImage IMAGEM = ImagemUtil.carregar("novo_obstaculo.png");
+    private static final double PROPORCAO_Y_INICIAL = 0.0;
+    private static final double PROPORCAO_Y_FINAL = 0.93;
     private static final double PROPORCAO_TOPO_APOS_INVERTER = 1.0 - PROPORCAO_Y_FINAL;
-    private static final double PROPORCAO_LARGURA_ARTE = (642.0 - 199.0) / 843.0;
-    private static final double PROPORCAO_X_ARTE = 199.0 / 843.0;
+    private static final double PROPORCAO_LARGURA_ARTE = 0.92;
+    private static final double PROPORCAO_X_ARTE = 0.04;
     private static final double PROPORCAO_ALTURA_ARTE = PROPORCAO_Y_FINAL - PROPORCAO_Y_INICIAL;
 
     private final int largura;
@@ -45,6 +45,14 @@ public class Obstaculo {
 
     public double getDistanciaAteProximo() {
         return distanciaAteProximo;
+    }
+
+    public int getLargura() {
+        return largura;
+    }
+
+    public double getCentroPassagem() {
+        return inicioDaPassagem + alturaDaPassagem / 2.0;
     }
 
     public void desenhar(Graphics2D g) {

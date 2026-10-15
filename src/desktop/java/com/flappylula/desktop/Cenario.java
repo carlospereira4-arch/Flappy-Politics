@@ -14,7 +14,7 @@ public class Cenario {
         this.largura = largura;
         this.altura = altura;
         imagem = ImagemUtil.redimensionarParaPreencher(
-                ImagemUtil.carregar("backgroundFullScreen.jpg"), largura, altura);
+                ImagemUtil.carregar("background_jogo.jpg"), largura, altura);
         imagemEspelhada = ImagemUtil.espelharHorizontalmente(imagem);
     }
 

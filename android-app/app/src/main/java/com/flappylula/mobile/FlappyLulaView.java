@@ -53,6 +53,7 @@ public final class FlappyLulaView extends View implements Choreographer.FrameCal
     private final MenuListener menuListener;
 
     private final Bitmap fundoOriginal;
+    private final Bitmap fundoJogoOriginal;
     private final Bitmap[] personagens = new Bitmap[ProgressoJogo.TOTAL_PERSONAGENS];
     private Bitmap imagemPersonagem;
     private final Bitmap imagemObstaculo;
@@ -62,6 +63,7 @@ public final class FlappyLulaView extends View implements Choreographer.FrameCal
     private final Typeface fonteTexto;
 
     private Bitmap fundoTela;
+    private Bitmap fundoJogoTela;
     private Bitmap fotoPerfil;
     private float alturaMundo = 600f;
     private float escalaTela = 1f;
@@ -85,16 +87,17 @@ public final class FlappyLulaView extends View implements Choreographer.FrameCal
         setFocusable(true);
         setContentDescription("Flappy Lula. Toque na tela para jogar e voar.");
         fundoOriginal = carregarBitmap("backgroundFullScreen.jpg");
+        fundoJogoOriginal = carregarBitmap("background_jogo.jpg");
         personagens[0] = carregarBitmap("personagem_transparente.png");
         personagens[1] = carregarBitmap("personagem2_transparente.png");
         personagens[2] = carregarBitmap("personagem3_transparente.png");
         personagens[3] = carregarBitmap("personagem4_transparente.png");
         imagemPersonagem = personagens[progresso.getPersonagemSelecionado()];
-        imagemObstaculo = carregarBitmap("obstaculos_transparente.png");
+        imagemObstaculo = carregarBitmap("novo_obstaculo.png");
         imagemMoeda = carregarBitmap("moeda_transparente.png");
-        fonteTitulo = carregarFonte("fonts/Honk.ttf");
-        fonteDestaque = carregarFonte("fonts/Oi-Regular.ttf");
-        fonteTexto = carregarFonte("fonts/ShortStack-Regular.ttf");
+        fonteTitulo = carregarFonte("fonts/BitcountInk.ttf");
+        fonteDestaque = carregarFonte("fonts/PressStart2P-Regular.ttf");
+        fonteTexto = carregarFonte("fonts/PixelifySans.ttf");
         tintaTexto.setTextAlign(Paint.Align.LEFT);
         tintaTexto.setColor(Color.WHITE);
         tintaForma.setStyle(Paint.Style.FILL);
@@ -151,28 +154,36 @@ public final class FlappyLulaView extends View implements Choreographer.FrameCal
     }
 
     private void prepararFundo(int largura, int altura) {
-        if (fundoOriginal == null) {
-            fundoTela = null;
-            return;
-        }
         if (fundoTela != null && !fundoTela.isRecycled()) {
             fundoTela.recycle();
         }
-        fundoTela = Bitmap.createBitmap(largura, altura, Bitmap.Config.ARGB_8888);
-        Canvas canvasFundo = new Canvas(fundoTela);
+        if (fundoJogoTela != null && !fundoJogoTela.isRecycled()) {
+            fundoJogoTela.recycle();
+        }
+        fundoTela = prepararFundoParaImagem(fundoOriginal, largura, altura);
+        fundoJogoTela = prepararFundoParaImagem(fundoJogoOriginal, largura, altura);
+    }
+
+    private Bitmap prepararFundoParaImagem(Bitmap origem, int largura, int altura) {
+        if (origem == null) {
+            return null;
+        }
+        Bitmap resultado = Bitmap.createBitmap(largura, altura, Bitmap.Config.ARGB_8888);
+        Canvas canvasFundo = new Canvas(resultado);
         float proporcaoAlvo = (float) largura / altura;
-        float proporcaoImagem = (float) fundoOriginal.getWidth() / fundoOriginal.getHeight();
+        float proporcaoImagem = (float) origem.getWidth() / origem.getHeight();
         if (proporcaoImagem > proporcaoAlvo) {
-            int larguraCortada = Math.round(fundoOriginal.getHeight() * proporcaoAlvo);
-            int esquerda = (fundoOriginal.getWidth() - larguraCortada) / 2;
-            corteFundo.set(esquerda, 0, esquerda + larguraCortada, fundoOriginal.getHeight());
+            int larguraCortada = Math.round(origem.getHeight() * proporcaoAlvo);
+            int esquerda = (origem.getWidth() - larguraCortada) / 2;
+            corteFundo.set(esquerda, 0, esquerda + larguraCortada, origem.getHeight());
         } else {
-            int alturaCortada = Math.round(fundoOriginal.getWidth() / proporcaoAlvo);
-            int topo = (fundoOriginal.getHeight() - alturaCortada) / 2;
-            corteFundo.set(0, topo, fundoOriginal.getWidth(), topo + alturaCortada);
+            int alturaCortada = Math.round(origem.getWidth() / proporcaoAlvo);
+            int topo = (origem.getHeight() - alturaCortada) / 2;
+            corteFundo.set(0, topo, origem.getWidth(), topo + alturaCortada);
         }
         destinoFundo.set(0, 0, largura, altura);
-        canvasFundo.drawBitmap(fundoOriginal, corteFundo, destinoFundo, tintaImagem);
+        canvasFundo.drawBitmap(origem, corteFundo, destinoFundo, tintaImagem);
+        return resultado;
     }
 
     public void retomar() {
@@ -354,14 +365,15 @@ public final class FlappyLulaView extends View implements Choreographer.FrameCal
     }
 
     private void desenharFundo(Canvas canvas, boolean rolar) {
-        if (fundoTela == null) {
+        Bitmap fundoExibido = rolar ? fundoJogoTela : fundoTela;
+        if (fundoExibido == null) {
             tintaForma.setColor(Color.rgb(112, 197, 206));
             canvas.drawRect(0, 0, LARGURA_MUNDO, alturaMundo, tintaForma);
             return;
         }
         if (!rolar) {
             destino.set(0, 0, LARGURA_MUNDO, alturaMundo);
-            canvas.drawBitmap(fundoTela, null, destino, tintaImagem);
+            canvas.drawBitmap(fundoExibido, null, destino, tintaImagem);
             return;
         }
         float deslocamento = distanciaCenario % (LARGURA_MUNDO * 2f);
@@ -369,11 +381,11 @@ public final class FlappyLulaView extends View implements Choreographer.FrameCal
             float x = i * LARGURA_MUNDO - deslocamento;
             destino.set(x, 0, x + LARGURA_MUNDO, alturaMundo);
             if ((i & 1) == 0) {
-                canvas.drawBitmap(fundoTela, null, destino, tintaImagem);
+                canvas.drawBitmap(fundoExibido, null, destino, tintaImagem);
             } else {
                 canvas.save();
                 canvas.scale(-1, 1, x + LARGURA_MUNDO / 2f, 0);
-                canvas.drawBitmap(fundoTela, null, destino, tintaImagem);
+                canvas.drawBitmap(fundoExibido, null, destino, tintaImagem);
                 canvas.restore();
             }
         }
@@ -432,21 +444,18 @@ public final class FlappyLulaView extends View implements Choreographer.FrameCal
         tintaTexto.setColor(Color.WHITE);
         tintaTexto.setTextSize(19);
         String nome = progresso.getNomeUsuario().isEmpty() ? "CRIAR PERFIL" : progresso.getNomeUsuario();
-        if (tintaTexto.measureText(nome) > 275) {
-            while (!nome.isEmpty() && tintaTexto.measureText(nome + "…") > 275) {
-                nome = nome.substring(0, nome.length() - 1);
-            }
-            nome += "…";
-        }
-        canvas.drawText(nome, 111, 145, tintaTexto);
+        float tamanhoNome = ajustarTamanhoTexto(nome, fonteDestaque, 19, 275, 27);
+        tintaTexto.setTextSize(tamanhoNome);
+        desenharTextoAjustado(canvas, nome, 111, 145, 275, 27);
         tintaTexto.setTypeface(fonteTexto);
-        tintaTexto.setTextSize(12);
         tintaTexto.setColor(Color.rgb(207, 231, 237));
-        canvas.drawText("IDADE " + progresso.getIdade() + "  •  RECORDE "
-                + progresso.getRecordeTempo() + "s", 111, 164, tintaTexto);
+        tintaTexto.setTextSize(12);
+        desenharTextoAjustado(canvas, "IDADE " + progresso.getIdade() + "  •  RECORDE "
+                + progresso.getRecordeTempo() + "s", 111, 164, 252, 17);
         tintaTexto.setColor(Color.rgb(255, 226, 92));
-        canvas.drawText("MOEDAS " + progresso.getMoedas() + "  •  "
-                + progresso.getPartidasJogadas() + " PARTIDAS", 111, 184, tintaTexto);
+        tintaTexto.setTextSize(12);
+        desenharTextoAjustado(canvas, "MOEDAS " + progresso.getMoedas() + "  •  "
+                + progresso.getPartidasJogadas() + " PARTIDAS", 111, 184, 252, 17);
         tintaTexto.setTextAlign(Paint.Align.LEFT);
     }
 
@@ -455,7 +464,8 @@ public final class FlappyLulaView extends View implements Choreographer.FrameCal
         tintaForma.setColor(fundo);
         canvas.drawRoundRect(esquerda, topo, direita, base, 17, 17, tintaForma);
         desenharTextoNoCentro(canvas, texto, (esquerda + direita) / 2f,
-                topo + (base - topo) * 0.66f, 18, fonteDestaque, corTexto);
+                topo + (base - topo) * 0.66f, 18, fonteDestaque, corTexto, false,
+                (direita - esquerda) - 20, (base - topo) * 0.58f);
     }
 
     private void desenharPersonagem(Canvas canvas, float y) {
@@ -506,14 +516,15 @@ public final class FlappyLulaView extends View implements Choreographer.FrameCal
         tintaTexto.setTextAlign(Paint.Align.LEFT);
         tintaTexto.setColor(Color.WHITE);
         tintaTexto.setTextSize(16);
-        canvas.drawText(ProgressoJogo.getNomePersonagem(indice), 87, topo + altura * 0.43f,
-                tintaTexto);
+        desenharTextoAjustado(canvas, ProgressoJogo.getNomePersonagem(indice),
+                87, topo + altura * 0.43f, 164, altura * 0.35f);
         tintaTexto.setTypeface(fonteTexto);
         tintaTexto.setTextSize(12);
         tintaTexto.setColor(Color.rgb(215, 231, 235));
         String detalhe = indice == 0 ? "GRÁTIS" : "CUSTO: "
                 + ProgressoJogo.getPrecoPersonagem(indice) + " MOEDAS";
-        canvas.drawText(detalhe, 87, topo + altura * 0.72f, tintaTexto);
+        desenharTextoAjustado(canvas, detalhe, 87, topo + altura * 0.72f, 164,
+                altura * 0.32f);
 
         float esquerdaBotao = 266;
         float topoBotao = topo + altura * 0.25f;
@@ -551,12 +562,8 @@ public final class FlappyLulaView extends View implements Choreographer.FrameCal
             destino.set(298, 34, 332, 51);
             canvas.drawBitmap(imagemMoeda, null, destino, tintaImagem);
         }
-        tintaTexto.setTypeface(fonteTexto);
-        tintaTexto.setTextSize(20);
-        tintaTexto.setTextAlign(Paint.Align.CENTER);
-        tintaTexto.setColor(Color.rgb(255, 226, 92));
-        canvas.drawText(String.valueOf(pontuacaoMoedas), 352, 52, tintaTexto);
-        tintaTexto.setTextAlign(Paint.Align.LEFT);
+        desenharTextoNoCentro(canvas, String.valueOf(pontuacaoMoedas), 352, 52,
+                20, fonteTexto, Color.rgb(255, 226, 92), false, 38, 25);
     }
 
     private void desenharFimDeJogo(Canvas canvas) {
@@ -597,8 +604,22 @@ public final class FlappyLulaView extends View implements Choreographer.FrameCal
 
     private void desenharTextoNoCentro(Canvas canvas, String texto, float x, float y, float tamanho,
                                        Typeface fonte, int cor, boolean contorno) {
+        desenharTextoNoCentro(canvas, texto, x, y, tamanho, fonte, cor, contorno,
+                LARGURA_MUNDO - 32, 48);
+    }
+
+    private void desenharTextoNoCentro(Canvas canvas, String texto, float x, float y, float tamanho,
+                                       Typeface fonte, int cor, boolean contorno, float larguraMaxima) {
+        desenharTextoNoCentro(canvas, texto, x, y, tamanho, fonte, cor, contorno,
+                larguraMaxima, 48);
+    }
+
+    private void desenharTextoNoCentro(Canvas canvas, String texto, float x, float y, float tamanho,
+                                       Typeface fonte, int cor, boolean contorno,
+                                       float larguraMaxima, float alturaMaxima) {
         tintaTexto.setTypeface(fonte);
-        tintaTexto.setTextSize(tamanho);
+        tintaTexto.setTextSize(ajustarTamanhoTexto(texto, fonte, tamanho,
+                larguraMaxima, alturaMaxima));
         tintaTexto.setTextAlign(Paint.Align.CENTER);
         tintaTexto.setColor(cor);
         if (contorno) {
@@ -611,6 +632,38 @@ public final class FlappyLulaView extends View implements Choreographer.FrameCal
         }
         canvas.drawText(texto, x, y, tintaTexto);
         tintaTexto.setTextAlign(Paint.Align.LEFT);
+    }
+
+    private float ajustarTamanhoTexto(String texto, Typeface fonte, float tamanho,
+                                      float larguraMaxima) {
+        return ajustarTamanhoTexto(texto, fonte, tamanho, larguraMaxima, 48);
+    }
+
+    private float ajustarTamanhoTexto(String texto, Typeface fonte, float tamanho,
+                                      float larguraMaxima, float alturaMaxima) {
+        tintaTexto.setTypeface(fonte);
+        tintaTexto.setTextSize(tamanho);
+        float largura = tintaTexto.measureText(texto);
+        Paint.FontMetrics metricas = tintaTexto.getFontMetrics();
+        float altura = metricas.descent - metricas.ascent;
+        float escala = 1f;
+        if (largura > larguraMaxima && largura > 0) {
+            escala = Math.min(escala, larguraMaxima / largura);
+        }
+        if (altura > alturaMaxima && altura > 0) {
+            escala = Math.min(escala, alturaMaxima / altura);
+        }
+        if (escala >= 1f) {
+            return tamanho;
+        }
+        return Math.max(7f, tamanho * escala);
+    }
+
+    private void desenharTextoAjustado(Canvas canvas, String texto, float x, float y,
+                                       float larguraMaxima, float alturaMaxima) {
+        tintaTexto.setTextSize(ajustarTamanhoTexto(texto, tintaTexto.getTypeface(),
+                tintaTexto.getTextSize(), larguraMaxima, alturaMaxima));
+        canvas.drawText(texto, x, y, tintaTexto);
     }
 
     @Override

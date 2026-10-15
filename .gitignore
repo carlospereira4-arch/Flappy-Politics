@@ -1,5 +1,6 @@
 # Java / Swing
 *.class
+!libs/jlayer-1.0.1/javazoom/**/*.class
 out/
 
 # Gradle e Android Studio
